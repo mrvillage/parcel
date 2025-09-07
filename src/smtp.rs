@@ -271,6 +271,7 @@ async fn handle_secure_client(
                             },
                             _ => "500 5.5.1 Command unrecognized\r\n".to_string(),
                         };
+                        println!("Response: {}", response.trim_end());
 
                         writer.write_all(response.as_bytes()).await?;
                         writer.flush().await?;
