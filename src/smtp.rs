@@ -274,6 +274,7 @@ async fn handle_secure_client(
                         writer.flush().await?;
                     },
                     SmtpState::Data => {
+                        println!("Data line from {}: {}", addr, buffer);
                         if buffer.trim_end() == "." {
                             // End of data
                             state = SmtpState::Command;
