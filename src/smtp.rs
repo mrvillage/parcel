@@ -363,7 +363,10 @@ async fn handle_secure_client(
                                 let dkim_result = ctx.authenticator.verify_dkim(&msg).await;
                                 println!(
                                     "DKIM results for message from {}: {:#?}",
-                                    mail_from.as_ref().map(|e| e.email()).unwrap_or("unknown"),
+                                    mail_from
+                                        .as_ref()
+                                        .map(|e| e.email())
+                                        .unwrap_or("unknown".to_string()),
                                     dkim_result
                                 );
                                 let mail_from_addr = mail_from
