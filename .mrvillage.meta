@@ -1,0 +1,9 @@
+Required parameters
+- crate-name
+
+Required template files
+- Cargo.toml
+- clippy.toml
+- rustfmt.toml
+- rust.gitignore
+- default-mrvillage.toml
