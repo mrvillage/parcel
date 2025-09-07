@@ -143,10 +143,10 @@ async fn handle_secure_client(
     addr: SocketAddr,
 ) -> anyhow::Result<()> {
     let ctx = ctx();
-    writer
-        .write_all(format!("220 {}\r\n", ctx.hostname).as_bytes())
-        .await?;
-    writer.flush().await?;
+    // writer
+    //     .write_all(format!("220 {}\r\n", ctx.hostname).as_bytes())
+    //     .await?;
+    // writer.flush().await?;
     let mut buffer = String::new();
     let mut message = String::new();
     let mut state = SmtpState::Command;
