@@ -54,6 +54,7 @@ async fn handle_client(mut stream: TcpStream, addr: SocketAddr) -> anyhow::Resul
     if handle_unsecure_client(&mut reader, &mut writer, addr).await? {
         let acceptor = TlsAcceptor::from(ctx().rustls_config.clone());
         let stream = acceptor.accept(stream).await?;
+        println!("TLS established with {}", addr);
         let (reader, writer) = tokio::io::split(stream);
         let mut reader = BufReader::new(reader);
         let mut writer = BufWriter::new(writer);
