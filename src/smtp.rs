@@ -189,8 +189,11 @@ async fn handle_secure_client(
                                     // need to get the sender address,
                                     let rest = rest.trim().to_lowercase();
                                     if let Some(rest) = rest.strip_prefix("from:") {
+                                        // ignore any parameters after the address
                                         let addr_str = rest
-                                            .trim()
+                                            .split_whitespace()
+                                            .next()
+                                            .unwrap_or("")
                                             .trim_matches(|c| c == '<' || c == '>')
                                             .to_lowercase();
                                         if addr_str.is_empty() {
@@ -215,8 +218,11 @@ async fn handle_secure_client(
                                 if mail_from.is_none() && !bounce {
                                     "503 5.5.1 Bad sequence of commands\r\n".to_string()
                                 } else if let Some(rest) = rest.strip_prefix("to:") {
+                                    // ignore any parameters after the address
                                     let addr_str = rest
-                                        .trim()
+                                        .split_whitespace()
+                                        .next()
+                                        .unwrap_or("")
                                         .trim_matches(|c| c == '<' || c == '>')
                                         .to_lowercase();
                                     if let Ok(address) = EmailAddress::from_str(addr_str.as_str()) {
