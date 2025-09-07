@@ -360,7 +360,13 @@ async fn handle_secure_client(
                                     }
                                 }
                             } else {
-                                println!("Received message from {:?}", msg.dkim_headers);
+                                println!(
+                                    "Received message from {:?}",
+                                    msg.headers.map(|(k, v)| (
+                                        String::from_utf8_lossy(k),
+                                        String::from_utf8_lossy(v)
+                                    ))
+                                );
                                 let dkim_result = ctx.authenticator.verify_dkim(&msg).await;
                                 println!(
                                     "DKIM results for message from {}: {:#?}",
