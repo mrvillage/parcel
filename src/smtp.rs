@@ -162,7 +162,6 @@ async fn handle_secure_client(
                 break;
             },
             Ok(_) => {
-                println!("Buffer: {}", buffer.trim_end());
                 match state {
                     SmtpState::Command => {
                         let (cmd, rest) = if let Some(space_pos) = buffer.find(' ') {
@@ -419,6 +418,10 @@ async fn handle_secure_client(
                                         continue;
                                     },
                                     _ => {
+                                        println!(
+                                            "DMARC failed for message from {}: {:#?}",
+                                            mail_from_addr, dmarc_result
+                                        );
                                         writer
                                             .write_all(
                                                 b"550 5.7.1 Message rejected due to DMARC\r\n",
@@ -505,7 +508,7 @@ async fn handle_secure_client(
                                         continue;
                                     }
                                 }
-                                println!("Final message:\n{}", final_message);
+                                // println!("Final message:\n{}", final_message);
                             }
                             writer
                                 .write_all(b"250 2.0.0 Message accepted for delivery\r\n")
