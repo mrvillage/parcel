@@ -545,7 +545,7 @@ async fn handle_secure_client(
                             message.clear();
                             bounce = false;
                         } else {
-                            message.push_str(&buffer.trim_end_matches('\n').trim_end_matches('\r'));
+                            message.push_str(buffer.trim_end_matches('\n').trim_end_matches('\r'));
                             message.push('\r');
                             message.push('\n');
                         }

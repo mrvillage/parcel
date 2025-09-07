@@ -66,6 +66,7 @@ impl Ctx {
                 req = req.header("X-Signature", signature);
             }
             let res = req.send().await?;
+            tracing::info!("Webhook sent, status: {}", res.status());
             Ok(res.status())
         } else {
             panic!("Webhook URL is not set");
