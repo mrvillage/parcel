@@ -178,7 +178,7 @@ async fn handle_secure_client(
                                 // actually care about them
                                 helo_domain = Some(rest.to_string());
                                 format!(
-                                    "250-{}\r\n250-SIZE 26214400\r\n250 ENHANCEDSTATUSCODES\r\n",
+                                    "250-{}\r\n250-SIZE 26214400\r\n250-PIPELINING\r\n250-8BITMIME\r\n250 ENHANCEDSTATUSCODES\r\n",
                                     ctx.hostname
                                 )
                             },
