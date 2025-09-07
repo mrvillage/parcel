@@ -146,7 +146,12 @@ async fn main() -> std::io::Result<()> {
         .unwrap_or_else(|_| "443".to_string())
         .parse::<u16>()
         .expect("PORT must be a valid u16 number");
-    let addr = std::net::SocketAddr::from(([0, 0, 0, 0], port));
+    let addr = std::net::SocketAddr::V6(std::net::SocketAddrV6::new(
+        std::net::Ipv6Addr::UNSPECIFIED,
+        port,
+        0,
+        0,
+    ));
     tokio::spawn(smtp::listen());
     axum_server::bind_rustls(addr, config)
         .serve(ServiceExt::<Request>::into_make_service(

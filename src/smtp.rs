@@ -19,7 +19,12 @@ pub async fn listen() -> tokio::io::Result<()> {
         .unwrap_or_else(|_| "25".to_string())
         .parse::<u16>()
         .expect("Invalid SMTP_PORT");
-    let addr = SocketAddr::from(([0, 0, 0, 0], smtp_port));
+    let addr = std::net::SocketAddr::V6(std::net::SocketAddrV6::new(
+        std::net::Ipv6Addr::UNSPECIFIED,
+        smtp_port,
+        0,
+        0,
+    ));
     let listener = TcpListener::bind(addr).await?;
     tracing::info!("SMTP server listening on port {}", smtp_port);
 
