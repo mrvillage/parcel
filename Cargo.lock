@@ -1693,6 +1693,7 @@ dependencies = [
  "mail-send",
  "psl",
  "reqwest",
+ "rustls",
  "serde",
  "serde_json",
  "sha2",
