@@ -178,7 +178,8 @@ async fn handle_secure_client(
                                     "503 5.5.1 Bad sequence of commands\r\n".to_string()
                                 } else {
                                     // need to get the sender address,
-                                    if let Some(rest) = rest.strip_prefix("FROM:") {
+                                    let rest = rest.trim().to_lowercase();
+                                    if let Some(rest) = rest.strip_prefix("from:") {
                                         let addr_str = rest
                                             .trim()
                                             .trim_matches(|c| c == '<' || c == '>')
@@ -201,9 +202,10 @@ async fn handle_secure_client(
                                 }
                             },
                             "RCPT" => {
+                                let rest = rest.trim().to_lowercase();
                                 if mail_from.is_none() && !bounce {
                                     "503 5.5.1 Bad sequence of commands\r\n".to_string()
-                                } else if let Some(rest) = rest.strip_prefix("TO:") {
+                                } else if let Some(rest) = rest.strip_prefix("to:") {
                                     let addr_str = rest
                                         .trim()
                                         .trim_matches(|c| c == '<' || c == '>')
