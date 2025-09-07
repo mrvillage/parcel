@@ -309,7 +309,7 @@ async fn handle_secure_client(
                                 bounce = false;
                                 continue;
                             };
-                            println!("HEADERS: {:#?}", msg.headers());
+                            println!("HEADERS: {:#?}", msg.headers_raw());
                             // Process the message
                             let msg = AuthenticatedMessage::from_parsed(&msg, false);
                             // if this is a bounce, then we send a webhook
