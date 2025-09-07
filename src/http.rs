@@ -50,7 +50,11 @@ async fn send_email(
         .min_by_key(|record| record.preference())
         .unwrap();
     let mx_host = mx_record.exchange().to_string();
-    let mut smtp_client = match SmtpClientBuilder::new(&mx_host, 25).connect().await {
+    let mut smtp_client = match SmtpClientBuilder::new(&mx_host, 25)
+        .implicit_tls(false)
+        .connect()
+        .await
+    {
         Ok(client) => client,
         Err(e) => {
             tracing::error!("Failed to connect to SMTP server {}: {}", mx_host, e);
