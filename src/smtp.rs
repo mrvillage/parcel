@@ -62,6 +62,11 @@ async fn handle_unsecure_client(
     writer: &mut BufWriter<tokio::net::tcp::WriteHalf<'_>>,
     addr: SocketAddr,
 ) -> anyhow::Result<bool> {
+    writer
+        .write_all(format!("220 {}\r\n", ctx().hostname).as_bytes())
+        .await?;
+    writer.flush().await?;
+
     let mut buffer = String::new();
     loop {
         buffer.clear();
