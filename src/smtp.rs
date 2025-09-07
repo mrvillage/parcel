@@ -12,6 +12,7 @@ use tokio::{
     net::{TcpListener, TcpStream},
 };
 use tokio_rustls::{server::TlsStream, TlsAcceptor};
+use tokio_util::codec::{Framed, FramedRead, LinesCodec};
 
 use crate::ctx;
 
@@ -78,7 +79,6 @@ async fn handle_unsecure_client(
     let mut buffer = String::new();
     loop {
         buffer.clear();
-        // TODO: should read until \r\n, not just \n
         match reader.read_line(&mut buffer).await {
             Ok(0) => {
                 tracing::info!("Client {} disconnected", addr);
@@ -545,7 +545,8 @@ async fn handle_secure_client(
                             message.clear();
                             bounce = false;
                         } else {
-                            message.push_str(&buffer);
+                            message.push_str(&buffer.trim_end_matches('\n').trim_end_matches('\r'));
+                            message.push('\r');
                             message.push('\n');
                         }
                     },
