@@ -288,7 +288,9 @@ async fn handle_secure_client(
                         if buffer.trim_end() == "." {
                             // End of data
                             state = SmtpState::Command;
-                            let Some(msg) = MessageParser::default().parse(message.as_bytes())
+                            let Some(msg) = MessageParser::new()
+                                .parse(message.as_bytes())
+                                .filter(|x| x.headers().iter().any(|x| !x.name.is_other()))
                             else {
                                 tracing::error!(
                                     "Failed to parse message from {}: {}",
@@ -306,6 +308,7 @@ async fn handle_secure_client(
                                 bounce = false;
                                 continue;
                             };
+                            println!("HEADERS: {:#?}", msg.headers());
                             // Process the message
                             let msg = AuthenticatedMessage::from_parsed(&msg, false);
                             // if this is a bounce, then we send a webhook
