@@ -159,6 +159,7 @@ async fn handle_secure_client(
                 break;
             },
             Ok(_) => {
+                println!("Buffer: {}", buffer.trim_end());
                 match state {
                     SmtpState::Command => {
                         let (cmd, rest) = if let Some(space_pos) = buffer.find(' ') {
@@ -274,7 +275,6 @@ async fn handle_secure_client(
                         writer.flush().await?;
                     },
                     SmtpState::Data => {
-                        println!("Data line from {}: {}", addr, buffer);
                         if buffer.trim_end() == "." {
                             // End of data
                             state = SmtpState::Command;
