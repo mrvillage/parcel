@@ -21,9 +21,9 @@ async fn health() -> &'static str {
 
 #[derive(serde::Deserialize)]
 struct SendEmail {
-    id:      String,
+    id: String,
     rcpt_to: EmailAddress,
-    body:    String,
+    body: String,
 }
 
 #[tracing::instrument(skip(header, body))]

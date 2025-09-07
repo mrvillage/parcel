@@ -2,12 +2,8 @@ use std::{net::SocketAddr, str::FromStr};
 
 use email_address::EmailAddress;
 use mail_auth::{
-    common::headers::HeaderWriter,
-    dmarc::verify::DmarcParameters,
-    spf::verify::SpfParameters,
-    AuthenticatedMessage,
-    AuthenticationResults,
-    DmarcResult,
+    common::headers::HeaderWriter, dmarc::verify::DmarcParameters, spf::verify::SpfParameters,
+    AuthenticatedMessage, AuthenticationResults, DmarcResult,
 };
 use reqwest::StatusCode;
 use tokio::{

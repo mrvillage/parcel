@@ -7,9 +7,7 @@ use axum::{extract::Request, ServiceExt};
 use axum_server::tls_rustls::RustlsConfig;
 use base64ct::Encoding;
 use hickory_resolver::{
-    config::ResolverConfig,
-    name_server::TokioConnectionProvider,
-    TokioResolver,
+    config::ResolverConfig, name_server::TokioConnectionProvider, TokioResolver,
 };
 use hmac::Mac;
 use mail_auth::MessageAuthenticator;
@@ -23,14 +21,14 @@ use tower_http::normalize_path::NormalizePathLayer;
 use url::Url;
 
 pub struct Ctx {
-    pub hostname:       String,
-    pub auth_token:     String,
+    pub hostname: String,
+    pub auth_token: String,
     pub webhook_secret: Option<String>,
-    pub webhook_url:    Option<Url>,
-    pub client:         reqwest::Client,
-    pub authenticator:  MessageAuthenticator,
-    pub resolver:       TokioResolver,
-    pub rustls_config:  Arc<ServerConfig>,
+    pub webhook_url: Option<Url>,
+    pub client: reqwest::Client,
+    pub authenticator: MessageAuthenticator,
+    pub resolver: TokioResolver,
+    pub rustls_config: Arc<ServerConfig>,
 }
 
 pub enum WebhookEventType {
