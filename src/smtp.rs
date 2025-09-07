@@ -5,6 +5,7 @@ use mail_auth::{
     common::headers::HeaderWriter, dmarc::verify::DmarcParameters, spf::verify::SpfParameters,
     AuthenticatedMessage, AuthenticationResults, DmarcResult,
 };
+use mail_parser::{Message, MessageParser};
 use reqwest::StatusCode;
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
@@ -287,8 +288,8 @@ async fn handle_secure_client(
                         if buffer.trim_end() == "." {
                             // End of data
                             state = SmtpState::Command;
-                            // Process the message
-                            let Some(msg) = AuthenticatedMessage::parse(message.as_bytes()) else {
+                            let Some(msg) = MessageParser::default().parse(message.as_bytes())
+                            else {
                                 tracing::error!(
                                     "Failed to parse message from {}: {}",
                                     addr,
@@ -305,6 +306,8 @@ async fn handle_secure_client(
                                 bounce = false;
                                 continue;
                             };
+                            // Process the message
+                            let msg = AuthenticatedMessage::from_parsed(&msg, false);
                             // if this is a bounce, then we send a webhook
                             if bounce {
                                 let local_part = rcpt_to[0].local_part();
