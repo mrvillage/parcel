@@ -398,8 +398,13 @@ async fn handle_secure_client(
                                     (DmarcResult::Pass, _) | (_, DmarcResult::Pass) => {
                                         // OK
                                     },
-                                    (DmarcResult::TempError(_), _)
-                                    | (_, DmarcResult::TempError(_)) => {
+                                    (DmarcResult::TempError(e), _)
+                                    | (_, DmarcResult::TempError(e)) => {
+                                        tracing::error!(
+                                            "Temporary DMARC error for message from {}: {}",
+                                            mail_from_addr,
+                                            e
+                                        );
                                         writer
                                             .write_all(
                                                 b"451 4.7.0 Message rejected due to DMARC\r\n",
