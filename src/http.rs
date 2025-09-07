@@ -22,7 +22,7 @@ async fn health() -> &'static str {
 #[derive(serde::Deserialize)]
 struct SendEmail {
     id: String,
-    rcpt_to: EmailAddress,
+    to: EmailAddress,
     body: String,
 }
 
@@ -38,12 +38,8 @@ async fn send_email(
         );
     }
     let mail_from = format!("bounce-{}@{}", body.id, ctx().hostname);
-    let message = Message::new(
-        mail_from.as_str(),
-        [body.rcpt_to.as_str()],
-        body.body.as_bytes(),
-    );
-    let Ok(mx_records) = ctx().resolver.mx_lookup(body.rcpt_to.domain()).await else {
+    let message = Message::new(mail_from.as_str(), [body.to.as_str()], body.body.as_bytes());
+    let Ok(mx_records) = ctx().resolver.mx_lookup(body.to.domain()).await else {
         return (StatusCode::BAD_REQUEST, Json(json!({"error": "no_mx"})));
     };
     if mx_records.iter().count() == 0 {
@@ -65,7 +61,7 @@ async fn send_email(
         },
     };
     if let Err(e) = smtp_client.send(message).await {
-        tracing::error!("Failed to send email to {}: {}", body.rcpt_to, e);
+        tracing::error!("Failed to send email to {}: {}", body.to, e);
         return (
             StatusCode::INTERNAL_SERVER_ERROR,
             Json(json!({"error": "failed_to_send"})),
