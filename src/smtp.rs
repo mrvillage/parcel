@@ -77,6 +77,7 @@ async fn handle_unsecure_client(
     let mut buffer = String::new();
     loop {
         buffer.clear();
+        // TODO: should read until \r\n, not just \n
         match reader.read_line(&mut buffer).await {
             Ok(0) => {
                 tracing::info!("Client {} disconnected", addr);
@@ -255,7 +256,7 @@ async fn handle_secure_client(
                                     "503 5.5.1 Bad sequence of commands\r\n".to_string()
                                 } else {
                                     state = SmtpState::Data;
-                                    "354 End data with <CR><LF>.<CR><LF>\r\n".to_string()
+                                    "354 Start mail input; end with <CRLF>.<CRLF>\r\n".to_string()
                                 }
                             },
                             "RSET" => {
