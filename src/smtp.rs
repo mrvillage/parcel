@@ -288,6 +288,7 @@ async fn handle_secure_client(
                         if buffer.trim_end() == "." {
                             // End of data
                             state = SmtpState::Command;
+                            println!("{}", message);
                             let Some(msg) = MessageParser::new()
                                 .parse(message.as_bytes())
                                 .filter(|x| x.headers().iter().any(|x| !x.name.is_other()))
