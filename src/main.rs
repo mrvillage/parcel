@@ -119,10 +119,12 @@ async fn main() -> std::io::Result<()> {
             webhook_secret,
             webhook_url,
             client: reqwest::Client::new(),
-            authenticator: MessageAuthenticator::new_cloudflare_tls()
+            // authenticator: MessageAuthenticator::new_cloudflare_tls()
+            authenticator: MessageAuthenticator::new_cloudflare()
                 .expect("Failed to create MessageAuthenticator"),
             resolver: TokioResolver::builder_with_config(
-                ResolverConfig::cloudflare_tls(),
+                // ResolverConfig::cloudflare_tls(),
+                ResolverConfig::cloudflare(),
                 TokioConnectionProvider::default(),
             )
             .build(),
