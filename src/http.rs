@@ -41,6 +41,7 @@ async fn send_email(
     }
     // let mail_from = format!("bounce-{}@{}", body.id, ctx().hostname);
     let mail_from = format!("bounce-{}@{}", body.id, body.from.domain());
+    println!("mail_from: {}", mail_from);
     let message = Message::new(mail_from.as_str(), [body.to.as_str()], body.body.as_bytes());
     let Ok(mx_records) = ctx().resolver.mx_lookup(body.to.domain()).await else {
         return (StatusCode::BAD_REQUEST, Json(json!({"error": "no_mx"})));
