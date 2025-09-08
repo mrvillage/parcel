@@ -473,7 +473,7 @@ async fn handle_secure_client(
                                         Ok(status) => status,
                                         Err(e) => {
                                             tracing::error!(
-                                                "Failed to send webhook for message from {}: {}",
+                                                "Failed to send webhook for message from {}: {:?}",
                                                 mail_from_addr,
                                                 e
                                             );
