@@ -4,11 +4,10 @@ use axum_extra::{
     TypedHeader,
 };
 use email_address::EmailAddress;
-use mail_parser::MessageParser;
 use mail_send::{smtp::message::Message, SmtpClientBuilder};
 use serde_json::json;
 
-use crate::ctx;
+use crate::{ctx, WebhookEventType};
 
 pub fn router() -> axum::Router {
     axum::Router::new()
@@ -24,7 +23,6 @@ async fn health() -> &'static str {
 struct SendEmail {
     id: String,
     to: EmailAddress,
-    from: EmailAddress,
     body: String,
 }
 
@@ -39,17 +37,29 @@ async fn send_email(
             Json(json!({"error": "unauthorized"})),
         );
     }
+    tokio::spawn(async move {
+        let (event_type, payload) = queue_send_email(body).await;
+        if ctx().has_webhook() {
+            let _ = ctx().send_webhook(event_type, payload).await;
+        }
+    });
+    (StatusCode::ACCEPTED, Json(json!({})))
+}
+
+async fn queue_send_email(body: SendEmail) -> (WebhookEventType, serde_json::Value) {
     let mail_from = format!("bounce-{}@{}", body.id, ctx().hostname);
-    // let mail_from = format!("bounce-{}@{}", body.id, body.from.domain());
-    println!("mail_from: {}", mail_from);
-    println!("to: {}", body.to);
-    println!("{}", body.body);
     let message = Message::new(mail_from.as_str(), [body.to.as_str()], body.body.as_bytes());
     let Ok(mx_records) = ctx().resolver.mx_lookup(body.to.domain()).await else {
-        return (StatusCode::BAD_REQUEST, Json(json!({"error": "no_mx"})));
+        return (
+            WebhookEventType::Failed,
+            json!({"id": body.id.as_str(), "error": "dns_lookup_failed"}),
+        );
     };
     if mx_records.iter().count() == 0 {
-        return (StatusCode::BAD_REQUEST, Json(json!({"error": "no_mx"})));
+        return (
+            WebhookEventType::Failed,
+            json!({"id": body.id.as_str(), "error": "no_mx_records"}),
+        );
     }
     let mx_record = mx_records
         .iter()
@@ -65,17 +75,17 @@ async fn send_email(
         Err(e) => {
             tracing::error!("Failed to connect to SMTP server {}: {}", mx_host, e);
             return (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                Json(json!({"error": "failed_to_connect"})),
+                WebhookEventType::Failed,
+                json!({"id": body.id.as_str(), "error": "smtp_connection_failed"}),
             );
         },
     };
     if let Err(e) = smtp_client.send(message).await {
         tracing::error!("Failed to send email to {}: {}", body.to, e);
         return (
-            StatusCode::INTERNAL_SERVER_ERROR,
-            Json(json!({"error": "failed_to_send"})),
+            WebhookEventType::Failed,
+            json!({"id": body.id.as_str(), "error": "smtp_send_failed"}),
         );
     }
-    (StatusCode::OK, Json(json!({})))
+    (WebhookEventType::Delivered, json!({"id": body.id.as_str()}))
 }

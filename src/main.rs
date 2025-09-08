@@ -32,6 +32,8 @@ pub struct Ctx {
 }
 
 pub enum WebhookEventType {
+    Failed,
+    Delivered,
     Received,
     Bounced,
 }
@@ -50,6 +52,8 @@ impl Ctx {
             let mut req = self.client.post(webhook_url);
             let body = serde_json::json!({
                 "event": match event_type {
+                    WebhookEventType::Failed => "failed",
+                    WebhookEventType::Delivered => "delivered",
                     WebhookEventType::Received => "received",
                     WebhookEventType::Bounced => "bounced",
                 },
