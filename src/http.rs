@@ -4,6 +4,7 @@ use axum_extra::{
     TypedHeader,
 };
 use email_address::EmailAddress;
+use mail_parser::MessageParser;
 use mail_send::{smtp::message::Message, SmtpClientBuilder};
 use serde_json::json;
 
@@ -23,6 +24,7 @@ async fn health() -> &'static str {
 struct SendEmail {
     id: String,
     to: EmailAddress,
+    from: EmailAddress,
     body: String,
 }
 
@@ -37,7 +39,8 @@ async fn send_email(
             Json(json!({"error": "unauthorized"})),
         );
     }
-    let mail_from = format!("bounce-{}@{}", body.id, ctx().hostname);
+    // let mail_from = format!("bounce-{}@{}", body.id, ctx().hostname);
+    let mail_from = format!("bounce-{}@{}", body.id, body.from.domain());
     let message = Message::new(mail_from.as_str(), [body.to.as_str()], body.body.as_bytes());
     let Ok(mx_records) = ctx().resolver.mx_lookup(body.to.domain()).await else {
         return (StatusCode::BAD_REQUEST, Json(json!({"error": "no_mx"})));
