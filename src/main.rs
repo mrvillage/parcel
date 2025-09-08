@@ -65,7 +65,7 @@ impl Ctx {
                 let signature = base64ct::Base64::encode_string(&mac.finalize().into_bytes());
                 req = req.header("X-Signature", signature);
             }
-            let res = req.send().await?;
+            let res = req.body(body).send().await?;
             tracing::info!("Webhook sent, status: {}", res.status());
             Ok(res.status())
         } else {
