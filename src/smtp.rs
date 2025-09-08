@@ -55,7 +55,6 @@ async fn handle_client(mut stream: TcpStream, addr: SocketAddr) -> anyhow::Resul
     if handle_unsecure_client(&mut reader, &mut writer, addr).await? {
         let acceptor = TlsAcceptor::from(ctx().rustls_config.clone());
         let mut stream = acceptor.accept(stream).await?;
-        println!("TLS established with {}", addr);
         let (reader, writer) = tokio::io::split(&mut stream);
         let mut reader = BufReader::new(reader);
         let mut writer = BufWriter::new(writer);
@@ -278,7 +277,6 @@ async fn handle_secure_client(
                             },
                             _ => "500 5.5.1 Command unrecognized\r\n".to_string(),
                         };
-                        println!("Response: {}", response.trim_end());
 
                         writer.write_all(response.as_bytes()).await?;
                         writer.flush().await?;
@@ -287,7 +285,6 @@ async fn handle_secure_client(
                         if buffer.trim_end() == "." {
                             // End of data
                             state = SmtpState::Command;
-                            println!("{}", message);
                             let Some(msg) = MessageParser::new()
                                 .parse(message.as_bytes())
                                 .filter(|x| x.headers().iter().any(|x| !x.name.is_other()))
@@ -308,7 +305,6 @@ async fn handle_secure_client(
                                 bounce = false;
                                 continue;
                             };
-                            println!("HEADERS: {:#?}", msg.headers_raw().collect::<Vec<_>>());
                             // Process the message
                             let msg = AuthenticatedMessage::from_parsed(&msg, false);
                             // if this is a bounce, then we send a webhook
@@ -366,25 +362,7 @@ async fn handle_secure_client(
                                     }
                                 }
                             } else {
-                                println!(
-                                    "Received message from {:?}",
-                                    msg.headers
-                                        .iter()
-                                        .map(|(k, v)| (
-                                            String::from_utf8_lossy(k),
-                                            String::from_utf8_lossy(v)
-                                        ))
-                                        .collect::<Vec<_>>()
-                                );
                                 let dkim_result = ctx.authenticator.verify_dkim(&msg).await;
-                                println!(
-                                    "DKIM results for message from {}: {:#?}",
-                                    mail_from
-                                        .as_ref()
-                                        .map(|e| e.email())
-                                        .unwrap_or("unknown".to_string()),
-                                    dkim_result
-                                );
                                 let mail_from_addr = mail_from
                                     .as_ref()
                                     .map(|e| e.email())
@@ -442,10 +420,6 @@ async fn handle_secure_client(
                                         continue;
                                     },
                                     _ => {
-                                        println!(
-                                            "DMARC failed for message from {}: {:#?}",
-                                            mail_from_addr, dmarc_result
-                                        );
                                         writer
                                             .write_all(
                                                 b"550 5.7.1 Message rejected due to DMARC\r\n",
@@ -483,10 +457,6 @@ async fn handle_secure_client(
                                     addr,
                                     ctx.hostname,
                                     chrono::Utc::now().format("%a, %d %b %Y %H:%M:%S +0000")
-                                );
-                                println!(
-                                    "Authentication results for message from {}: {:#?}",
-                                    mail_from_addr, results
                                 );
                                 let final_message =
                                     format!("{}{}{}", auth_results, received, message);
@@ -532,7 +502,6 @@ async fn handle_secure_client(
                                         continue;
                                     }
                                 }
-                                // println!("Final message:\n{}", final_message);
                             }
                             writer
                                 .write_all(b"250 2.0.0 Message accepted for delivery\r\n")
