@@ -5,14 +5,13 @@ use mail_auth::{
     common::headers::HeaderWriter, dmarc::verify::DmarcParameters, spf::verify::SpfParameters,
     AuthenticatedMessage, AuthenticationResults, DmarcResult,
 };
-use mail_parser::{Message, MessageParser};
+use mail_parser::MessageParser;
 use reqwest::StatusCode;
 use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt, BufReader, BufWriter},
     net::{TcpListener, TcpStream},
 };
 use tokio_rustls::{server::TlsStream, TlsAcceptor};
-use tokio_util::codec::{Framed, FramedRead, LinesCodec};
 
 use crate::ctx;
 
