@@ -39,8 +39,8 @@ async fn send_email(
             Json(json!({"error": "unauthorized"})),
         );
     }
-    // let mail_from = format!("bounce-{}@{}", body.id, ctx().hostname);
-    let mail_from = format!("bounce-{}@{}", body.id, body.from.domain());
+    let mail_from = format!("bounce-{}@{}", body.id, ctx().hostname);
+    // let mail_from = format!("bounce-{}@{}", body.id, body.from.domain());
     println!("mail_from: {}", mail_from);
     println!("to: {}", body.to);
     println!("{}", body.body);
