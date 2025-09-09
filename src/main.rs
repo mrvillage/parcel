@@ -89,8 +89,8 @@ pub fn ctx() -> &'static Ctx {
 
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
-    let _ = dotenvy::dotenv();
     let _ = dotenvy::from_path("/opt/parcel/parcel.conf");
+    let _ = dotenvy::dotenv();
     rustls::crypto::CryptoProvider::install_default(rustls::crypto::ring::default_provider())
         .expect("Failed to install default crypto provider");
 
